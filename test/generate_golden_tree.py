@@ -118,11 +118,75 @@ def _build_tree() -> DecisionTreeRegressor:
     return clf
 
 
-def main() -> None:
-    out_path = Path(__file__).resolve().parent / "golden_tree.joblib"
+def serialize_tree_to_model_bytes(clf: DecisionTreeRegressor) -> bytes:
+    """
+    Serialize tree into the fixed 36-byte image expected by tophat_model_loader:
+    - 7 internal nodes * 4 bytes: [feature, threshold, left, right]
+    - 8 leaves * 1 byte: [value]
+    """
+    tree = clf.tree_
+    num_internal = 7
+    num_leaves = 8
+    leaf_base = 7
+
+    data = bytearray()
+
+    for node_idx in range(num_internal):
+        feature = int(tree.feature[node_idx])
+        threshold_f = float(tree.threshold[node_idx])
+        left = int(tree.children_left[node_idx])
+        right = int(tree.children_right[node_idx])
+
+        threshold = int(round(threshold_f))
+        if abs(threshold_f - threshold) > 1e-6:
+            raise ValueError(
+                f"Node {node_idx} threshold is not integer-like: {threshold_f}"
+            )
+
+        if not (0 <= feature <= 7):
+            raise ValueError(f"Node {node_idx} feature out of range: {feature}")
+        if not (0 <= threshold <= 255):
+            raise ValueError(f"Node {node_idx} threshold out of range: {threshold}")
+        if not (0 <= left <= 15 and 0 <= right <= 15):
+            raise ValueError(
+                f"Node {node_idx} child index out of 4-bit range: left={left}, right={right}"
+            )
+
+        data.extend([feature & 0x07, threshold & 0xFF, left & 0x0F, right & 0x0F])
+
+    for node_idx in range(leaf_base, leaf_base + num_leaves):
+        value_f = float(tree.value[node_idx, 0, 0])
+        value = int(round(value_f))
+        if abs(value_f - value) > 1e-6:
+            raise ValueError(f"Leaf {node_idx} value is not integer-like: {value_f}")
+        if not (0 <= value <= 255):
+            raise ValueError(f"Leaf {node_idx} value out of range: {value}")
+        data.append(value & 0xFF)
+
+    expected_len = (num_internal * 4) + num_leaves
+    if len(data) != expected_len:
+        raise ValueError(f"Model image length {len(data)} != {expected_len}")
+
+    return bytes(data)
+
+
+def write_artifacts(out_dir: Path) -> tuple[Path, Path]:
     clf = _build_tree()
-    joblib.dump(clf, out_path)
-    print(f"Wrote {out_path}")
+    tree_path = out_dir / "golden_tree.joblib"
+    model_path = out_dir / "golden_model.bin"
+
+    joblib.dump(clf, tree_path)
+    model_bytes = serialize_tree_to_model_bytes(clf)
+    model_path.write_bytes(model_bytes)
+
+    return tree_path, model_path
+
+
+def main() -> None:
+    out_dir = Path(__file__).resolve().parent
+    tree_path, model_path = write_artifacts(out_dir)
+    print(f"Wrote {tree_path}")
+    print(f"Wrote {model_path}")
 
 
 if __name__ == "__main__":

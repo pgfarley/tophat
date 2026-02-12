@@ -6,7 +6,14 @@ SIM ?= icarus
 FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = tt_um_pgfarley_tophat_top.v
+.DEFAULT_GOAL := all
+PROJECT_SOURCES = \
+	tt_um_pgfarley_tophat_top.v \
+	tophat_io_intf.v \
+	tophat_model_loader.v \
+	tophat_feature_loader.v \
+	tophat_tree_core.v \
+	tophat_result_if.v
 
 ifneq ($(GATES),yes)
 
@@ -39,12 +46,14 @@ TOPLEVEL = tb
 # List test modules to run, separated by commas and without the .py suffix:
 COCOTB_TEST_MODULES = test
 
-# include cocotb's make rules to take care of the simulator setup
-include $(shell cocotb-config --makefiles)/Makefile.sim
-
 .PHONY: test-python
 PYTHON ?= ../.venv/bin/python
 PYTEST ?= $(PYTHON) -m pytest
 
 test-python:
 	$(PYTEST) -q .
+
+ifneq ($(MAKECMDGOALS),test-python)
+# include cocotb's make rules to take care of the simulator setup
+include $(shell cocotb-config --makefiles)/Makefile.sim
+endif
