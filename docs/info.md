@@ -1,10 +1,6 @@
 # TOPHAT: Tapeout Prediction with Hardware Acceleration for Trees
 
-TOPHAT (Tapeout Prediction with Hardware Acceleration for Trees) is a hardware decision-tree inference engine for a fixed depth-3 tree (7 internal nodes, 8 leaves) with 8 input features.
-
-## Pinout
-
-Lorem ipsum dolor.
+TOPHAT is a hardware decision-tree inference engine for a fixed depth-3 tree (7 internal nodes, 8 leaves) with 8 input features.
 
 ## Usage
 
