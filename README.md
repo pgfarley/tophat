@@ -1,6 +1,6 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# TOPHAT: Tapeout Prediction with Hardware Acceleration for Trees
+# TOPHAT: TapeOut Prediction with Hardware Acceleration for Trees
 
 A hardware decision-tree inference engine for a fixed depth-3 tree (7 internal nodes, 8 leaves) with 8 input features. The documentation can be found [here](docs/info.md).
 
