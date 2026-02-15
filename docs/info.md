@@ -1,17 +1,49 @@
-<!---
+# TOPHAT: Tapeout Prediction with Hardware Acceleration for Trees
 
-This file is used to generate your project datasheet. Please fill in the information below and delete any unused
-sections.
+TOPHAT (Tapeout Prediction with Hardware Acceleration for Trees) is a hardware decision-tree inference engine for a fixed depth-3 tree (7 internal nodes, 8 leaves) with 8 input features.
 
-You can also include images in this folder and reference them in the markdown. Each image must be less than
-512 kb in size, and the combined size of all images must be less than 1 MB.
--->
+## Pinout
 
-## How it works
+Lorem ipsum dolor.
 
-Tophat evaluates a fixed sized decision tree. More to follow.
+## Usage
 
-## How to test
+### Background
 
-A python client library will be support for loading models and calling predict. More to follow.
+Lorem ipsum dolor.
 
+### Model Representation
+
+Lorem ipsum dolor.
+
+### Feature Representation
+
+Lorem ipsum dolor.
+
+### Control Protocol
+
+#### Loading a Model
+
+Lorem ipsum dolor.
+
+#### Prediction
+
+Lorem ipsum dolor.
+
+## How It Works
+
+### Block Diagram
+
+Lorem ipsum dolor.
+
+### Module Descriptions
+
+Lorem ipsum dolor.
+
+## How to Test
+
+Lorem ipsum dolor.
+
+## Acknowledgments
+
+Thanks to [BLAKE2s Hashing Accelerator: A Solo Tapeout Journey](https://essenceia.github.io/projects/blake2s_hashing_accelerator_a_solo_tapeout_journey/) for the inspiration.
