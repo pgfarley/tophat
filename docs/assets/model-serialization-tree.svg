@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="760" viewBox="0 0 1600 760" role="img" aria-labelledby="d">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" role="img" aria-labelledby="d">
   <desc id="d">Sample TOPHAT depth-3 tree with node and leaf indices used by serialization.</desc>
   <defs>
     <style>
@@ -9,11 +9,10 @@
       .ntext { font: 600 16px 'Menlo', 'SF Mono', monospace; fill: #0f172a; }
       .stext { font: 500 13px 'Menlo', 'SF Mono', monospace; fill: #334155; }
       .elabel { font: 700 12px 'Menlo', 'SF Mono', monospace; fill: #475569; }
-      .legend { font: 500 12px 'Menlo', 'SF Mono', monospace; fill: #475569; }
     </style>
   </defs>
 
-  <rect class="bg" x="0" y="0" width="1600" height="760"/>
+  <rect class="bg" x="0" y="0" width="1600" height="620"/>
 
   <line class="edge" x1="800" y1="126" x2="400" y2="245"/>
   <line class="edge" x1="800" y1="126" x2="1200" y2="245"/>
@@ -42,67 +41,65 @@
   <g>
     <rect class="node" x="705" y="84" width="190" height="42" rx="10"/>
     <text class="ntext" x="724" y="110">N0: f2 ≤ 24</text>
-    <text class="stext" x="776" y="143">idx 0</text>
+    <text class="stext" x="776" y="76">idx 0</text>
 
     <rect class="node" x="305" y="239" width="190" height="42" rx="10"/>
     <text class="ntext" x="324" y="265">N1: f0 ≤ 8</text>
-    <text class="stext" x="376" y="298">idx 1</text>
+    <text class="stext" x="376" y="231">idx 1</text>
 
     <rect class="node" x="1105" y="239" width="190" height="42" rx="10"/>
     <text class="ntext" x="1124" y="265">N2: f7 ≤ 35</text>
-    <text class="stext" x="1176" y="298">idx 2</text>
+    <text class="stext" x="1176" y="231">idx 2</text>
 
     <rect class="node" x="105" y="379" width="190" height="42" rx="10"/>
     <text class="ntext" x="124" y="405">N3: f4 ≤ 20</text>
-    <text class="stext" x="176" y="438">idx 3</text>
+    <text class="stext" x="176" y="371">idx 3</text>
 
     <rect class="node" x="505" y="379" width="190" height="42" rx="10"/>
     <text class="ntext" x="524" y="405">N4: f1 ≤ 20</text>
-    <text class="stext" x="576" y="438">idx 4</text>
+    <text class="stext" x="576" y="371">idx 4</text>
 
     <rect class="node" x="905" y="379" width="190" height="42" rx="10"/>
     <text class="ntext" x="924" y="405">N5: f6 ≤ 40</text>
-    <text class="stext" x="976" y="438">idx 5</text>
+    <text class="stext" x="976" y="371">idx 5</text>
 
     <rect class="node" x="1305" y="379" width="190" height="42" rx="10"/>
     <text class="ntext" x="1324" y="405">N6: f3 ≤ 28</text>
-    <text class="stext" x="1376" y="438">idx 6</text>
+    <text class="stext" x="1376" y="371">idx 6</text>
   </g>
 
   <g>
     <rect class="leaf" x="40" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="56" y="545">L0 = 8</text>
-    <text class="stext" x="70" y="577">idx 7</text>
+    <text class="stext" x="70" y="512">idx 7</text>
 
     <rect class="leaf" x="240" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="256" y="545">L1 = 18</text>
-    <text class="stext" x="270" y="577">idx 8</text>
+    <text class="stext" x="270" y="512">idx 8</text>
 
     <rect class="leaf" x="440" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="456" y="545">L2 = 25</text>
-    <text class="stext" x="470" y="577">idx 9</text>
+    <text class="stext" x="470" y="512">idx 9</text>
 
     <rect class="leaf" x="640" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="656" y="545">L3 = 45</text>
-    <text class="stext" x="666" y="577">idx 10</text>
+    <text class="stext" x="666" y="512">idx 10</text>
 
     <rect class="leaf" x="840" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="856" y="545">L4 = 55</text>
-    <text class="stext" x="866" y="577">idx 11</text>
+    <text class="stext" x="866" y="512">idx 11</text>
 
     <rect class="leaf" x="1040" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="1056" y="545">L5 = 85</text>
-    <text class="stext" x="1066" y="577">idx 12</text>
+    <text class="stext" x="1066" y="512">idx 12</text>
 
     <rect class="leaf" x="1240" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="1256" y="545">L6 = 95</text>
-    <text class="stext" x="1266" y="577">idx 13</text>
+    <text class="stext" x="1266" y="512">idx 13</text>
 
     <rect class="leaf" x="1440" y="520" width="120" height="38" rx="9"/>
     <text class="ntext" x="1456" y="545">L7 = 140</text>
-    <text class="stext" x="1466" y="577">idx 14</text>
+    <text class="stext" x="1466" y="512">idx 14</text>
   </g>
 
-  <text class="legend" x="48" y="640">Internal node bytes: [feature_id, threshold, left_child, right_child]</text>
-  <text class="legend" x="48" y="664">Leaf nodes are addressed by child indices 7..14 (LEAF_BASE = 7).</text>
 </svg>
