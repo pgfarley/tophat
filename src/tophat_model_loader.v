@@ -34,7 +34,9 @@ module tophat_model_loader #(
   assign node_idx_w = byte_idx_q[4:2];
   assign field_idx_w = byte_idx_q[1:0];
   /* verilator lint_off WIDTHEXPAND */
+  /* verilator lint_off WIDTHTRUNC */
   assign leaf_idx_w = byte_idx_q - INTERNAL_BYTES;
+  /* verilator lint_on WIDTHTRUNC */
   /* verilator lint_on WIDTHEXPAND */
 
   always @(posedge clk) begin
