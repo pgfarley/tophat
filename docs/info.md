@@ -6,7 +6,11 @@ TOPHAT is a hardware decision-tree inference engine for a fixed depth-3 tree (7 
 
 ### Background
 
-Lorem ipsum dolor.
+A decision tree is a supervised learning model that predicts an output by applying a sequence of simple feature-based tests (for example, `feature_i < threshold`). Training determines which tests to use and where to place them so the model separates examples effectively.
+
+At inference time, prediction is a traversal from the root to a leaf based on comparison results. In hardware the model is represented as fixed node parameters plus deterministic control flow.
+
+For a familiar example of the sort of problem for which a decision tree can be applied, see Kaggle's [Titanic - Machine Learning from Disaster](https://www.kaggle.com/competitions/titanic).
 
 ### Model Representation
 
