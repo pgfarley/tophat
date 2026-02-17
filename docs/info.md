@@ -28,9 +28,8 @@ TOPHAT consumes a fixed 36-byte model image:
 
 #### Example Model Serialization
 
-Any model can be used as long as it is serialized into the format above. The example below is generated with scikit-learn. See `test/generate_golden_tree.py` for details. For more background on scikit-learn trees, see the [scikit-learn Decision Trees documentation](https://scikit-learn.org/stable/modules/tree.html).
+Any model can be used as long as it is serialized into the format above. The example below was generated with scikit-learn. See `test/generate_golden_tree.py` for details. For more background on scikit-learn trees, see the [scikit-learn Decision Trees documentation](https://scikit-learn.org/stable/modules/tree.html).
 
-Tree structure and indices:
 ![Sample TOPHAT tree and indices](assets/model-serialization-tree.svg)
 
 | Byte Range | Record | Decoded | Hex Bytes |
