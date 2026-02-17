@@ -38,7 +38,9 @@ module tophat_feature_loader #(
 
         feature_vector_o[(feature_idx_q*8) +: 8] <= feature_byte_i;
 
+        /* verilator lint_off WIDTHEXPAND */
         if (feature_idx_q == (NUM_FEATURES - 1)) begin
+        /* verilator lint_on WIDTHEXPAND */
           feature_idx_q     <= {FEATURE_IDX_W{1'b0}};
           features_loaded_o <= 1'b1;
         end else begin
@@ -49,4 +51,3 @@ module tophat_feature_loader #(
   end
 
 endmodule
-

@@ -33,7 +33,9 @@ module tophat_model_loader #(
   wire [2:0] leaf_idx_w;
   assign node_idx_w = byte_idx_q[4:2];
   assign field_idx_w = byte_idx_q[1:0];
+  /* verilator lint_off WIDTHEXPAND */
   assign leaf_idx_w = byte_idx_q - INTERNAL_BYTES;
+  /* verilator lint_on WIDTHEXPAND */
 
   always @(posedge clk) begin
     if (~rst_n || clear_i) begin
@@ -49,18 +51,24 @@ module tophat_model_loader #(
         model_loaded_o <= 1'b0;
       end
 
+      /* verilator lint_off WIDTHEXPAND */
       if (byte_idx_q < INTERNAL_BYTES) begin
+      /* verilator lint_on WIDTHEXPAND */
         case (field_idx_w)
           2'd0: node_feature_o[(node_idx_w*3) +: 3] <= model_byte_i[2:0];
           2'd1: node_threshold_o[(node_idx_w*8) +: 8] <= model_byte_i;
           2'd2: node_left_o[(node_idx_w*4) +: 4] <= model_byte_i[3:0];
           default: node_right_o[(node_idx_w*4) +: 4] <= model_byte_i[3:0];
         endcase
+      /* verilator lint_off WIDTHEXPAND */
       end else if (byte_idx_q < MODEL_BYTES) begin
+      /* verilator lint_on WIDTHEXPAND */
         leaf_value_o[(leaf_idx_w*8) +: 8] <= model_byte_i;
       end
 
+      /* verilator lint_off WIDTHEXPAND */
       if (byte_idx_q == (MODEL_BYTES - 1)) begin
+      /* verilator lint_on WIDTHEXPAND */
         byte_idx_q     <= {BYTE_IDX_W{1'b0}};
         model_loaded_o <= 1'b1;
       end else begin
@@ -70,4 +78,3 @@ module tophat_model_loader #(
   end
 
 endmodule
-

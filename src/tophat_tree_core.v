@@ -93,15 +93,19 @@ module tophat_tree_core #(
             busy_o  <= 1'b0;
             pred_valid_o <= 1'b1;
 
+            /* verilator lint_off WIDTHEXPAND */
             if ((next_child_sel >= LEAF_BASE) && (next_child_sel < (LEAF_BASE + NUM_LEAVES))) begin
               pred_value_o <= leaf_value_i[((next_child_sel - LEAF_BASE)*8) +: 8];
+            /* verilator lint_on WIDTHEXPAND */
               error_o      <= 1'b0;
             end else begin
               pred_value_o <= 8'd0;
               error_o      <= 1'b1;
             end
           end else begin
+            /* verilator lint_off WIDTHEXPAND */
             if (next_child_sel < NUM_INTERNAL) begin
+            /* verilator lint_on WIDTHEXPAND */
               current_node_q <= next_child_sel[2:0];
               depth_q        <= depth_q + 2'd1;
             end else begin
