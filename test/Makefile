@@ -43,8 +43,9 @@ COMPILE_ARGS 		+= -I$(SRC_DIR)
 VERILOG_SOURCES += $(PWD)/tb.v
 TOPLEVEL = tb
 
-# List test modules to run, separated by commas and without the .py suffix:
-COCOTB_TEST_MODULES = test
+# List test modules to run, separated by commas and without the .py suffix.
+# Keep this list space-free: a space after ',' breaks the env-var assignment in Makefile.sim.
+COCOTB_TEST_MODULES = test,board_test
 
 .PHONY: test-python
 PYTHON ?= ../.venv/bin/python

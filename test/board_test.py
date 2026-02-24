@@ -8,11 +8,8 @@ from pathlib import Path
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
-import joblib
-import numpy as np
 
-from fixture_data import EXAMPLES, FEATURES, vectorize_u8
-from generate_golden_tree import write_artifacts
+from fixture_data import EXAMPLES, vectorize_u8
 
 CMD_MODEL = 0b00
 CMD_FEATURE = 0b01
@@ -95,19 +92,20 @@ async def _reset(dut: cocotb.handle.SimHandleBase) -> None:
 
 
 @cocotb.test()
-async def test_model_load_and_predict(dut: cocotb.handle.SimHandleBase) -> None:
+async def test_model_load_and_predict_fixture_only(dut: cocotb.handle.SimHandleBase) -> None:
     clock = Clock(dut.clk, 10, unit="us")
     cocotb.start_soon(clock.start())
     await _reset(dut)
 
     test_dir = Path(__file__).resolve().parent
-    tree_path = test_dir / "golden_tree.joblib"
     model_path = test_dir / "golden_model.bin"
 
-    if not tree_path.exists() or not model_path.exists():
-        write_artifacts(test_dir)
+    if not model_path.exists():
+        raise AssertionError(
+            f"{model_path} is missing. Generate it once with: "
+            "python test/generate_golden_tree.py"
+        )
 
-    clf = joblib.load(tree_path)
     model_image = model_path.read_bytes()
     assert len(model_image) == 36, f"Expected 36-byte model image, got {len(model_image)}"
 
@@ -119,12 +117,7 @@ async def test_model_load_and_predict(dut: cocotb.handle.SimHandleBase) -> None:
         await _load_features(dut, features_u8)
         dut_pred = await _run_predict(dut)
 
-        x = np.array([case["features"][name] for name in FEATURES], dtype=np.int64).reshape(1, -1)
-        golden_pred = int(round(float(clf.predict(x)[0])))
-
-        assert golden_pred == case["expected"], (
-            f"{case['name']}: fixture expected {case['expected']}, golden model predicted {golden_pred}"
-        )
-        assert dut_pred == golden_pred, (
-            f"{case['name']}: DUT predicted {dut_pred}, golden model predicted {golden_pred}"
+        expected = int(case["expected"])
+        assert dut_pred == expected, (
+            f"{case['name']}: DUT predicted {dut_pred}, fixture expected {expected}"
         )

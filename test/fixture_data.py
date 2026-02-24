@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-
 # Features are encoded as 8-bit values (these fixtures currently use 0-63).
 # Output is opening-weekend revenue in $M.
 FEATURES = [
@@ -133,10 +131,6 @@ EXAMPLES = [
         "expected": 140,
     },
 ]
-
-
-def vectorize(feature_map: dict[str, int]) -> np.ndarray:
-    return np.array([feature_map[name] for name in FEATURES], dtype=np.int64)
 
 
 def vectorize_u8(feature_map: dict[str, int]) -> list[int]:
