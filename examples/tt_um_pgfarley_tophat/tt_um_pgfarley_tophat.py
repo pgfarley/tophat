@@ -3,20 +3,26 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+import microcotb as cocotb
+from microcotb.clock import Clock
+from microcotb.triggers import ClockCycles
+from ttboard.cocotb.dut import DUT
+from ttboard.demoboard import DemoBoard
+from ttboard.mode import RPMode
 
-import cocotb
-from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from .fixture_data import EXAMPLES, vectorize_u8
+from .model_image import MODEL_IMAGE
 
-from fixture_data import EXAMPLES, vectorize_u8
+cocotb.set_runner_scope(__name__)
+
+PROJECT_NAME = "tt_um_pgfarley_tophat"
 
 CMD_MODEL = 0b00
 CMD_FEATURE = 0b01
 CMD_CTRL = 0b10
 
 
-def _status(dut: cocotb.handle.SimHandleBase) -> dict[str, int]:
+def _status(dut) -> dict[str, int]:
     raw = int(dut.uio_out.value)
     return {
         "ready": (raw >> 3) & 0x1,
@@ -27,7 +33,7 @@ def _status(dut: cocotb.handle.SimHandleBase) -> dict[str, int]:
     }
 
 
-async def _wait_until(dut: cocotb.handle.SimHandleBase, predicate, timeout_cycles: int, label: str) -> None:
+async def _wait_until(dut, predicate, timeout_cycles: int, label: str) -> None:
     for _ in range(timeout_cycles):
         if predicate():
             return
@@ -35,7 +41,7 @@ async def _wait_until(dut: cocotb.handle.SimHandleBase, predicate, timeout_cycle
     raise AssertionError(f"Timeout waiting for {label}")
 
 
-async def _send_cmd_byte(dut: cocotb.handle.SimHandleBase, cmd: int, payload: int) -> None:
+async def _send_cmd_byte(dut, cmd: int, payload: int) -> None:
     dut.ui_in.value = payload & 0xFF
     dut.uio_in.value = ((cmd & 0x3) << 1) | 0x1
     await ClockCycles(dut.clk, 1)
@@ -44,45 +50,36 @@ async def _send_cmd_byte(dut: cocotb.handle.SimHandleBase, cmd: int, payload: in
     await ClockCycles(dut.clk, 1)
 
 
-async def _clear(dut: cocotb.handle.SimHandleBase) -> None:
+async def _clear(dut) -> None:
     await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready before clear")
     await _send_cmd_byte(dut, CMD_CTRL, 0x02)
 
 
-async def _load_model(dut: cocotb.handle.SimHandleBase, model_image: bytes) -> None:
+async def _load_model(dut, model_image: bytes) -> None:
     for byte in model_image:
         await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready during model load")
         await _send_cmd_byte(dut, CMD_MODEL, byte)
-    await _wait_until(
-        dut,
-        lambda: _status(dut)["model_loaded"] == 1,
-        50,
-        "model_loaded status",
-    )
+    await _wait_until(dut, lambda: _status(dut)["model_loaded"] == 1, 50, "model_loaded status")
 
 
-async def _load_features(dut: cocotb.handle.SimHandleBase, feature_values: list[int]) -> None:
+async def _load_features(dut, feature_values: list[int]) -> None:
     assert len(feature_values) == 8
     for value in feature_values:
         await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready during feature load")
         await _send_cmd_byte(dut, CMD_FEATURE, value)
 
 
-async def _run_predict(dut: cocotb.handle.SimHandleBase) -> int:
+async def _run_predict(dut) -> int:
     await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready before run")
     await _send_cmd_byte(dut, CMD_CTRL, 0x01)
-
-    await _wait_until(
-        dut,
-        lambda: _status(dut)["pred_valid"] == 1,
-        50,
-        "pred_valid status",
-    )
+    await _wait_until(dut, lambda: _status(dut)["pred_valid"] == 1, 50, "pred_valid status")
     return int(dut.uo_out.value) & 0xFF
 
 
-async def _reset(dut: cocotb.handle.SimHandleBase) -> None:
+async def _reset(dut) -> None:
     dut.ena.value = 1
+    # ASIC drives uio[7:3], RP2040 must drive uio[2:0] (valid + cmd).
+    dut.uio_oe_pico.value = 0x07
     dut.ui_in.value = 0
     dut.uio_in.value = 0
     dut.rst_n.value = 0
@@ -92,25 +89,15 @@ async def _reset(dut: cocotb.handle.SimHandleBase) -> None:
 
 
 @cocotb.test()
-async def test_model_load_and_predict_fixture_only(dut: cocotb.handle.SimHandleBase) -> None:
-    clock = Clock(dut.clk, 10, unit="us")
+async def test_model_load_and_predict_fixture_only(dut) -> None:
+    clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
     await _reset(dut)
 
-    test_dir = Path(__file__).resolve().parent
-    model_path = test_dir / "golden_model.bin"
-
-    if not model_path.exists():
-        raise AssertionError(
-            f"{model_path} is missing. Generate it once with: "
-            "python test/generate_golden_tree.py"
-        )
-
-    model_image = model_path.read_bytes()
-    assert len(model_image) == 36, f"Expected 36-byte model image, got {len(model_image)}"
+    assert len(MODEL_IMAGE) == 36, f"Expected 36-byte model image, got {len(MODEL_IMAGE)}"
 
     await _clear(dut)
-    await _load_model(dut, model_image)
+    await _load_model(dut, MODEL_IMAGE)
 
     for case in EXAMPLES:
         features_u8 = vectorize_u8(case["features"])
@@ -121,3 +108,29 @@ async def test_model_load_and_predict_fixture_only(dut: cocotb.handle.SimHandleB
         assert dut_pred == expected, (
             f"{case['name']}: DUT predicted {dut_pred}, fixture expected {expected}"
         )
+
+
+def _load_project(tt: DemoBoard) -> bool:
+    if not tt.shuttle.has(PROJECT_NAME):
+        print(f"This shuttle does not contain {PROJECT_NAME}")
+        return False
+
+    getattr(tt.shuttle, PROJECT_NAME).enable()
+
+    if tt.mode != RPMode.ASIC_RP_CONTROL:
+        print("Setting mode to ASIC_RP_CONTROL")
+        tt.mode = RPMode.ASIC_RP_CONTROL
+
+    tt.uio_oe_pico.value = 0x07
+    return True
+
+
+def main() -> None:
+    tt = DemoBoard.get()
+    if not _load_project(tt):
+        return
+
+    dut = DUT()
+    runner = cocotb.get_runner(__name__)
+    dut._log.info(f"enabled {PROJECT_NAME}, running tests")
+    runner.test(dut)

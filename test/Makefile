@@ -45,14 +45,19 @@ TOPLEVEL = tb
 
 # List test modules to run, separated by commas and without the .py suffix.
 # Keep this list space-free: a space after ',' breaks the env-var assignment in Makefile.sim.
-COCOTB_TEST_MODULES = test,board_test
+COCOTB_TEST_MODULES = test
 
-.PHONY: test-python
+.PHONY: test-python test-all
 PYTHON ?= ../.venv/bin/python
 PYTEST ?= $(PYTHON) -m pytest
 
 test-python:
 	$(PYTEST) -q .
+
+test-all:
+	$(MAKE) clean
+	$(MAKE)
+	$(MAKE) test-python
 
 ifneq ($(MAKECMDGOALS),test-python)
 # include cocotb's make rules to take care of the simulator setup
