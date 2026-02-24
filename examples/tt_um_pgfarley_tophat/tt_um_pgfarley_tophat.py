@@ -13,7 +13,8 @@ from .model_image import MODEL_IMAGE
 
 cocotb.set_runner_scope(__name__)
 
-PROJECT_NAME = "tt_um_pgfarley_tophat"
+# Shuttle project identifier must match info.yaml `top_module`.
+PROJECT_NAME = "tt_um_pgfarley_tophat_top"
 
 CMD_MODEL = 0b00
 CMD_FEATURE = 0b01
