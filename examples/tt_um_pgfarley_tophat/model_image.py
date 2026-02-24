@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: © 2026
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-
 # 36-byte serialized model image expected by tophat_model_loader.
 MODEL_IMAGE = bytes(
     (

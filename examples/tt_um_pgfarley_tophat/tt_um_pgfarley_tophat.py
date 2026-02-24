@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: © 2026
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-
 import microcotb as cocotb
 from microcotb.clock import Clock
 from microcotb.triggers import ClockCycles
@@ -22,7 +20,7 @@ CMD_FEATURE = 0b01
 CMD_CTRL = 0b10
 
 
-def _status(dut) -> dict[str, int]:
+def _status(dut):
     raw = int(dut.uio_out.value)
     return {
         "ready": (raw >> 3) & 0x1,
@@ -33,7 +31,7 @@ def _status(dut) -> dict[str, int]:
     }
 
 
-async def _wait_until(dut, predicate, timeout_cycles: int, label: str) -> None:
+async def _wait_until(dut, predicate, timeout_cycles, label):
     for _ in range(timeout_cycles):
         if predicate():
             return
@@ -41,7 +39,7 @@ async def _wait_until(dut, predicate, timeout_cycles: int, label: str) -> None:
     raise AssertionError(f"Timeout waiting for {label}")
 
 
-async def _send_cmd_byte(dut, cmd: int, payload: int) -> None:
+async def _send_cmd_byte(dut, cmd, payload):
     dut.ui_in.value = payload & 0xFF
     dut.uio_in.value = ((cmd & 0x3) << 1) | 0x1
     await ClockCycles(dut.clk, 1)
@@ -50,33 +48,33 @@ async def _send_cmd_byte(dut, cmd: int, payload: int) -> None:
     await ClockCycles(dut.clk, 1)
 
 
-async def _clear(dut) -> None:
+async def _clear(dut):
     await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready before clear")
     await _send_cmd_byte(dut, CMD_CTRL, 0x02)
 
 
-async def _load_model(dut, model_image: bytes) -> None:
+async def _load_model(dut, model_image):
     for byte in model_image:
         await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready during model load")
         await _send_cmd_byte(dut, CMD_MODEL, byte)
     await _wait_until(dut, lambda: _status(dut)["model_loaded"] == 1, 50, "model_loaded status")
 
 
-async def _load_features(dut, feature_values: list[int]) -> None:
+async def _load_features(dut, feature_values):
     assert len(feature_values) == 8
     for value in feature_values:
         await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready during feature load")
         await _send_cmd_byte(dut, CMD_FEATURE, value)
 
 
-async def _run_predict(dut) -> int:
+async def _run_predict(dut):
     await _wait_until(dut, lambda: _status(dut)["ready"] == 1, 50, "ready before run")
     await _send_cmd_byte(dut, CMD_CTRL, 0x01)
     await _wait_until(dut, lambda: _status(dut)["pred_valid"] == 1, 50, "pred_valid status")
     return int(dut.uo_out.value) & 0xFF
 
 
-async def _reset(dut) -> None:
+async def _reset(dut):
     dut.ena.value = 1
     # ASIC drives uio[7:3], RP2040 must drive uio[2:0] (valid + cmd).
     dut.uio_oe_pico.value = 0x07
@@ -89,7 +87,7 @@ async def _reset(dut) -> None:
 
 
 @cocotb.test()
-async def test_model_load_and_predict_fixture_only(dut) -> None:
+async def test_model_load_and_predict_fixture_only(dut):
     clock = Clock(dut.clk, 10, units="us")
     cocotb.start_soon(clock.start())
     await _reset(dut)
@@ -110,7 +108,7 @@ async def test_model_load_and_predict_fixture_only(dut) -> None:
         )
 
 
-def _load_project(tt: DemoBoard) -> bool:
+def _load_project(tt):
     if not tt.shuttle.has(PROJECT_NAME):
         print(f"This shuttle does not contain {PROJECT_NAME}")
         return False
@@ -125,7 +123,7 @@ def _load_project(tt: DemoBoard) -> bool:
     return True
 
 
-def main() -> None:
+def main():
     tt = DemoBoard.get()
     if not _load_project(tt):
         return

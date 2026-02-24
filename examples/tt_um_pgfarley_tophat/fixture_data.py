@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: © 2026
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import annotations
-
 # Features are encoded as 8-bit values (these fixtures currently use 0-63).
 # Output is opening-weekend revenue in $M.
 FEATURES = [
@@ -132,5 +130,5 @@ EXAMPLES = [
 ]
 
 
-def vectorize_u8(feature_map: dict[str, int]) -> list[int]:
+def vectorize_u8(feature_map):
     return [int(feature_map[name]) & 0xFF for name in FEATURES]
