@@ -93,7 +93,7 @@ async def test_model_load_and_predict_fixture_only(dut):
     cocotb.start_soon(clock.start())
     await _reset(dut)
 
-    assert len(MODEL_IMAGE) == 36, f"Expected 36-byte model image, got {len(MODEL_IMAGE)}"
+    assert len(MODEL_IMAGE) == 22, f"Expected 22-byte model image, got {len(MODEL_IMAGE)}"
 
     await _clear(dut)
     await _load_model(dut, MODEL_IMAGE)

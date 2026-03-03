@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" role="img" aria-labelledby="d">
-  <desc id="d">Sample TOPHAT depth-3 tree with node and leaf indices used by serialization.</desc>
+  <desc id="d">Sample TOPHAT depth-3 tree with implicit node and leaf indices used during traversal.</desc>
   <defs>
     <style>
       .bg { fill: #f8fafc; }

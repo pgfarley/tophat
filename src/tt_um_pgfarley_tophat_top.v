@@ -16,6 +16,12 @@ module tt_um_pgfarley_tophat_top (
     input  wire       rst_n     // reset_n - low to reset
 );
 
+  localparam integer NUM_FEATURES = 8;
+  localparam integer FEATURE_IDX_W = 3;
+  localparam integer TREE_DEPTH = 3;
+  localparam integer NUM_INTERNAL = ((1 << TREE_DEPTH) - 1);
+  localparam integer NUM_LEAVES = (1 << TREE_DEPTH);
+
   // Input protocol:
   // - ui_in[7:0]  : payload byte
   // - uio_in[0]   : valid
@@ -41,12 +47,10 @@ module tt_um_pgfarley_tophat_top (
   wire model_loaded;
   wire features_loaded;
 
-  wire [20:0] node_feature_flat;
-  wire [55:0] node_threshold_flat;
-  wire [27:0] node_left_flat;
-  wire [27:0] node_right_flat;
-  wire [63:0] leaf_value_flat;
-  wire [63:0] feature_vector_flat;
+  wire [NUM_INTERNAL*FEATURE_IDX_W-1:0] node_feature_flat;
+  wire [NUM_INTERNAL*8-1:0] node_threshold_flat;
+  wire [NUM_LEAVES*8-1:0] leaf_value_flat;
+  wire [NUM_FEATURES*8-1:0] feature_vector_flat;
 
   wire core_busy;
   wire pred_valid;
@@ -77,8 +81,9 @@ module tt_um_pgfarley_tophat_top (
   );
 
   tophat_model_loader #(
-      .NUM_INTERNAL(7),
-      .NUM_LEAVES(8)
+      .NUM_INTERNAL(NUM_INTERNAL),
+      .NUM_LEAVES(NUM_LEAVES),
+      .FEATURE_IDX_W(FEATURE_IDX_W)
   ) u_model_loader (
       .clk(clk),
       .rst_n(rst_n),
@@ -88,13 +93,11 @@ module tt_um_pgfarley_tophat_top (
       .model_loaded_o(model_loaded),
       .node_feature_o(node_feature_flat),
       .node_threshold_o(node_threshold_flat),
-      .node_left_o(node_left_flat),
-      .node_right_o(node_right_flat),
       .leaf_value_o(leaf_value_flat)
   );
 
   tophat_feature_loader #(
-      .NUM_FEATURES(8)
+      .NUM_FEATURES(NUM_FEATURES)
   ) u_feature_loader (
       .clk(clk),
       .rst_n(rst_n),
@@ -107,10 +110,11 @@ module tt_um_pgfarley_tophat_top (
   );
 
   tophat_tree_core #(
-      .NUM_FEATURES(8),
-      .NUM_INTERNAL(7),
-      .NUM_LEAVES(8),
-      .LEAF_BASE(7)
+      .NUM_FEATURES(NUM_FEATURES),
+      .FEATURE_IDX_W(FEATURE_IDX_W),
+      .TREE_DEPTH(TREE_DEPTH),
+      .NUM_INTERNAL(NUM_INTERNAL),
+      .NUM_LEAVES(NUM_LEAVES)
   ) u_tree_core (
       .clk(clk),
       .rst_n(rst_n),
@@ -121,8 +125,6 @@ module tt_um_pgfarley_tophat_top (
       .feature_vector_i(feature_vector_flat),
       .node_feature_i(node_feature_flat),
       .node_threshold_i(node_threshold_flat),
-      .node_left_i(node_left_flat),
-      .node_right_i(node_right_flat),
       .leaf_value_i(leaf_value_flat),
       .busy_o(core_busy),
       .pred_valid_o(pred_valid),

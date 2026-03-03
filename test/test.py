@@ -109,7 +109,7 @@ async def test_model_load_and_predict(dut: cocotb.handle.SimHandleBase) -> None:
 
     clf = joblib.load(tree_path)
     model_image = model_path.read_bytes()
-    assert len(model_image) == 36, f"Expected 36-byte model image, got {len(model_image)}"
+    assert len(model_image) == 22, f"Expected 22-byte model image, got {len(model_image)}"
 
     await _clear(dut)
     await _load_model(dut, model_image)

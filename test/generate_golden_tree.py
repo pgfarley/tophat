@@ -120,8 +120,8 @@ def _build_tree() -> DecisionTreeRegressor:
 
 def serialize_tree_to_model_bytes(clf: DecisionTreeRegressor) -> bytes:
     """
-    Serialize tree into the fixed 36-byte image expected by tophat_model_loader:
-    - 7 internal nodes * 4 bytes: [feature, threshold, left, right]
+    Serialize tree into the fixed 22-byte image expected by tophat_model_loader:
+    - 7 internal nodes * 2 bytes: [feature, threshold]
     - 8 leaves * 1 byte: [value]
     """
     tree = clf.tree_
@@ -147,12 +147,15 @@ def serialize_tree_to_model_bytes(clf: DecisionTreeRegressor) -> bytes:
             raise ValueError(f"Node {node_idx} feature out of range: {feature}")
         if not (0 <= threshold <= 255):
             raise ValueError(f"Node {node_idx} threshold out of range: {threshold}")
-        if not (0 <= left <= 15 and 0 <= right <= 15):
+        expected_left = (node_idx * 2) + 1
+        expected_right = expected_left + 1
+        if left != expected_left or right != expected_right:
             raise ValueError(
-                f"Node {node_idx} child index out of 4-bit range: left={left}, right={right}"
+                f"Node {node_idx} children are not dense-layout compatible: "
+                f"left={left}, right={right}, expected {expected_left}/{expected_right}"
             )
 
-        data.extend([feature & 0x07, threshold & 0xFF, left & 0x0F, right & 0x0F])
+        data.extend([feature & 0x07, threshold & 0xFF])
 
     for node_idx in range(leaf_base, leaf_base + num_leaves):
         value_f = float(tree.value[node_idx, 0, 0])
@@ -163,7 +166,7 @@ def serialize_tree_to_model_bytes(clf: DecisionTreeRegressor) -> bytes:
             raise ValueError(f"Leaf {node_idx} value out of range: {value}")
         data.append(value & 0xFF)
 
-    expected_len = (num_internal * 4) + num_leaves
+    expected_len = (num_internal * 2) + num_leaves
     if len(data) != expected_len:
         raise ValueError(f"Model image length {len(data)} != {expected_len}")
 
