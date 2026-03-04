@@ -56,7 +56,7 @@ def test_load_model_rejects_wrong_length() -> None:
     fake = _FakeTransport([{"ok": True}])
     client = TophatClient(fake)
 
-    with pytest.raises(ValueError, match="exactly 46"):
+    with pytest.raises(ValueError, match="exactly 22"):
         client.load_model(bytes([0] * (MODEL_IMAGE_BYTES - 1)))
 
 

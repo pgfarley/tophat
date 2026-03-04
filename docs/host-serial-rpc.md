@@ -59,7 +59,7 @@ Request:
 ```
 
 Notes:
-- `model` must be exactly 46 unsigned bytes.
+- `model` must be exactly 22 unsigned bytes.
 - Matches the model format documented in [`docs/info.md`](info.md).
 
 Response:
@@ -77,7 +77,7 @@ Request:
 ```
 
 Notes:
-- `features` must be exactly 16 unsigned bytes.
+- `features` must be exactly 8 unsigned bytes.
 
 Response:
 
@@ -127,7 +127,7 @@ python tools/host/tophat_host.py --port /dev/ttyACM0 load-model --model test/gol
 Single prediction with comma-separated features:
 
 ```sh
-python tools/host/tophat_host.py --port /dev/ttyACM0 predict --features 4,6,10,12,15,20,10,18,0,0,0,0,0,0,0,0
+python tools/host/tophat_host.py --port /dev/ttyACM0 predict --features 4,6,10,12,15,20,10,18
 ```
 
 Split flow (feature load then run):

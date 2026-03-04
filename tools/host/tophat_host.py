@@ -9,8 +9,8 @@ import json
 from pathlib import Path
 from typing import Any, Iterable, Protocol
 
-MODEL_IMAGE_BYTES = 46
-FEATURE_VECTOR_BYTES = 16
+MODEL_IMAGE_BYTES = 22
+FEATURE_VECTOR_BYTES = 8
 
 
 class ProtocolError(RuntimeError):
@@ -154,7 +154,7 @@ def _load_feature_file(path: Path) -> list[int]:
     if isinstance(data, dict):
         ordered = [int(data.get(f"feature_{idx:02d}", 0)) for idx in range(FEATURE_VECTOR_BYTES)]
         return _normalize_u8_vector(ordered, FEATURE_VECTOR_BYTES, label="features")
-    raise ValueError("Feature JSON must be either a list[16] or an object with feature_00..feature_15 keys")
+    raise ValueError("Feature JSON must be either a list[8] or an object with feature_00..feature_07 keys")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -172,10 +172,10 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("ping", help="Check bridge liveness")
     subparsers.add_parser("clear", help="Clear model/features/core state")
 
-    load_model = subparsers.add_parser("load-model", help="Load 46-byte model image")
-    load_model.add_argument("--model", required=True, help="Path to 46-byte model binary")
+    load_model = subparsers.add_parser("load-model", help="Load 22-byte model image")
+    load_model.add_argument("--model", required=True, help="Path to 22-byte model binary")
 
-    load_features = subparsers.add_parser("load-features", help="Load 16-byte feature vector")
+    load_features = subparsers.add_parser("load-features", help="Load 8-byte feature vector")
     _add_feature_args(load_features)
 
     subparsers.add_parser("run", help="Run predict after features are already loaded")
@@ -189,9 +189,9 @@ def _add_feature_args(parser: argparse.ArgumentParser) -> None:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "--features",
-        help="Comma-separated 16-byte vector, e.g. 4,6,10,12,15,20,10,18,0,0,0,0,0,0,0,0",
+        help="Comma-separated 8-byte vector, e.g. 4,6,10,12,15,20,10,18",
     )
-    group.add_argument("--features-file", help="JSON file containing list[16] or feature_00..feature_15 object")
+    group.add_argument("--features-file", help="JSON file containing list[8] or feature_00..feature_07 object")
 
 
 def main() -> int:
