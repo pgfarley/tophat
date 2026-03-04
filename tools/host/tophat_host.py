@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import time
 from typing import Any, Iterable, Protocol
 
 MODEL_IMAGE_BYTES = 22
@@ -59,22 +60,63 @@ class JsonLineSerialTransport:
         self._open()
         assert self._serial is not None
 
+        if hasattr(self._serial, "reset_input_buffer"):
+            self._serial.reset_input_buffer()
+
         line = json.dumps(payload, separators=(",", ":")) + "\n"
         self._serial.write(line.encode("utf-8"))
         self._serial.flush()
 
-        response_raw = self._serial.readline()
-        if not response_raw:
-            raise TimeoutError("Timeout waiting for board response")
+        deadline = time.monotonic() + self._timeout_s
+        last_dict_without_ok: dict[str, Any] | None = None
+        last_unparseable_line: bytes | None = None
 
+        while time.monotonic() < deadline:
+            response_raw = self._serial.readline()
+            if not response_raw:
+                continue
+
+            response = _decode_json_object(response_raw)
+            if response is None:
+                last_unparseable_line = response_raw
+                continue
+
+            ok = response.get("ok")
+            if isinstance(ok, bool):
+                return response
+
+            last_dict_without_ok = response
+
+        if last_dict_without_ok is not None:
+            raise ProtocolError(f"Missing boolean `ok` in response: {last_dict_without_ok!r}")
+        if last_unparseable_line is not None:
+            raise ProtocolError(f"Invalid JSON response: {last_unparseable_line!r}")
+        raise TimeoutError("Timeout waiting for board response")
+
+
+def _decode_json_object(raw_line: bytes) -> dict[str, Any] | None:
+    # Some firmware stacks may prepend logging/ANSI bytes before a JSON object.
+    line = raw_line.decode("utf-8", errors="replace").strip()
+    if not line:
+        return None
+
+    candidates = [line]
+    left = line.find("{")
+    right = line.rfind("}")
+    if left != -1 and right > left:
+        embedded = line[left : right + 1]
+        if embedded != line:
+            candidates.append(embedded)
+
+    for candidate in candidates:
         try:
-            response = json.loads(response_raw.decode("utf-8"))
-        except json.JSONDecodeError as exc:
-            raise ProtocolError(f"Invalid JSON response: {response_raw!r}") from exc
+            decoded = json.loads(candidate)
+        except json.JSONDecodeError:
+            continue
 
-        if not isinstance(response, dict):
-            raise ProtocolError(f"Expected object response, got: {response!r}")
-        return response
+        if isinstance(decoded, dict):
+            return decoded
+    return None
 
 
 class TophatClient:
