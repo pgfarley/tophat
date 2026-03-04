@@ -16,6 +16,7 @@ from tools.host.tophat_host import (  # noqa: E402
     FEATURE_VECTOR_BYTES,
     MODEL_IMAGE_BYTES,
     TophatClient,
+    _build_parser,
 )
 
 
@@ -74,3 +75,18 @@ def test_request_raises_board_error() -> None:
 
     with pytest.raises(RuntimeError, match="missing model"):
         client.clear()
+
+
+def test_cli_accepts_transport_flags_after_subcommand() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(
+        [
+            "predict",
+            "--port",
+            "/dev/ttyACM0",
+            "--features",
+            "4,6,10,12,15,20,10,18",
+        ]
+    )
+    assert args.subcmd == "predict"
+    assert args.port == "/dev/ttyACM0"

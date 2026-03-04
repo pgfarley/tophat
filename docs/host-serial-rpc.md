@@ -121,18 +121,18 @@ Response:
 Model load:
 
 ```sh
-python tools/host/tophat_host.py --port /dev/ttyACM0 load-model --model test/golden_model.bin
+python tools/host/tophat_host.py load-model --port /dev/ttyACM0 --model test/golden_model.bin
 ```
 
 Single prediction with comma-separated features:
 
 ```sh
-python tools/host/tophat_host.py --port /dev/ttyACM0 predict --features 4,6,10,12,15,20,10,18
+python tools/host/tophat_host.py predict --port /dev/ttyACM0 --features 4,6,10,12,15,20,10,18
 ```
 
 Split flow (feature load then run):
 
 ```sh
-python tools/host/tophat_host.py --port /dev/ttyACM0 load-features --features-file features.json
-python tools/host/tophat_host.py --port /dev/ttyACM0 run
+python tools/host/tophat_host.py load-features --port /dev/ttyACM0 --features-file features.json
+python tools/host/tophat_host.py run --port /dev/ttyACM0
 ```

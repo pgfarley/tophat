@@ -159,30 +159,32 @@ def _load_feature_file(path: Path) -> list[int]:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Host utility for TOPHAT USB-serial RPC bridge")
-    parser.add_argument("--port", required=True, help="Serial port, e.g. /dev/ttyACM0")
-    parser.add_argument("--baud", type=int, default=115200, help="Serial baudrate (default: 115200)")
-    parser.add_argument(
-        "--timeout",
-        type=float,
-        default=2.0,
-        help="Per-request timeout in seconds (default: 2.0)",
-    )
 
     subparsers = parser.add_subparsers(dest="subcmd", required=True)
-    subparsers.add_parser("ping", help="Check bridge liveness")
-    subparsers.add_parser("clear", help="Clear model/features/core state")
+    ping = subparsers.add_parser("ping", help="Check bridge liveness")
+    _add_transport_args(ping)
+    clear = subparsers.add_parser("clear", help="Clear model/features/core state")
+    _add_transport_args(clear)
 
     load_model = subparsers.add_parser("load-model", help="Load 22-byte model image")
+    _add_transport_args(load_model)
     load_model.add_argument("--model", required=True, help="Path to 22-byte model binary")
 
     load_features = subparsers.add_parser("load-features", help="Load 8-byte feature vector")
+    _add_transport_args(load_features)
     _add_feature_args(load_features)
 
-    subparsers.add_parser("run", help="Run predict after features are already loaded")
+    run = subparsers.add_parser("run", help="Run predict after features are already loaded")
+    _add_transport_args(run)
 
     predict = subparsers.add_parser("predict", help="Load features then run predict")
+    _add_transport_args(predict)
     _add_feature_args(predict)
     return parser
+
+
+def _add_transport_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--port", required=True, help="Serial port, e.g. /dev/ttyACM0")
 
 
 def _add_feature_args(parser: argparse.ArgumentParser) -> None:
@@ -198,7 +200,7 @@ def main() -> int:
     parser = _build_parser()
     args = parser.parse_args()
 
-    with JsonLineSerialTransport(args.port, baud=args.baud, timeout_s=args.timeout) as transport:
+    with JsonLineSerialTransport(args.port) as transport:
         client = TophatClient(transport)
 
         if args.subcmd == "ping":
