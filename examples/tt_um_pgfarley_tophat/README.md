@@ -3,7 +3,7 @@
 This package provides a hardware-in-the-loop microcotb test for TOPHAT that:
 
 1. resets the design,
-2. sends a fixed 36-byte model image,
+2. sends a fixed 22-byte model image,
 3. sends fixture feature vectors, and
 4. asserts prediction bytes against fixed expected fixture values.
 
