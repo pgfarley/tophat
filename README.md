@@ -2,7 +2,7 @@
 
 # TOPHAT: TapeOut Prediction with Hardware Acceleration for Trees
 
-A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree. 
+A hardware decision-tree inference engine for very small fixed-shape trees.
 
 [Protocol and usage documentation can be found in the datasheet.](docs/info.md)
 
@@ -16,7 +16,7 @@ Click the image to open the GDS viewer:
 
 The repository includes:
 
-- RTL for model load, feature load, and tree traversal; synthesizable for FPGA prototyping and hardenable with LibreLane for ASIC tapeout.
+- RTL for model load, feature load, and tree traversal; synthesizable for FPGA prototyping and hardenable with LibreLane for ASIC tapeout. The current implementation targets a depth-3 tree.
 - Host and board-side tooling for exercising the design on Tiny Tapeout hardware.
 - An end-to-end example showing how a software-trained tree can be quantized, serialized, and run through the inference engine.
 
