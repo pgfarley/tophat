@@ -12,7 +12,7 @@ Click the image to open the GDS viewer:
   <img src="docs/assets/gds-pic.png" alt="TOPHAT GDS render in the viewer" width="45%">
 </a>
 
-<br>
+<br><br>
 
 The repository includes:
 
