@@ -2,7 +2,7 @@
 
 TOPHAT is a hardware decision-tree inference engine for a fixed depth-3 tree (7 internal nodes, 8 leaves) with 8 input features.
 
-## Usage
+## How It Works
 
 ### Background
 
@@ -88,6 +88,8 @@ A transfer is accepted on a rising clock edge only when `valid=1` and `ready=1`.
 | `2'b10` | `CMD_CTRL` | Bit0=`run`, bit1=`clear` |
 | `2'b11` | Reserved | Ignored |
 
+## Usage
+
 #### Loading a Model
 
 1. Wait until `ready=1`.
@@ -118,19 +120,10 @@ Notes:
 | `model_loaded=1` and `features_loaded=1` | Normal traversal, valid prediction on `uo_out` |
 | Missing model or features | Run is rejected, `error` is set |
 
-## How It Works
-
-### Block Diagram
-
-Lorem ipsum dolor.
-
-### Module Descriptions
-
-Lorem ipsum dolor.
 
 ## How to Test
 
-### Automated (Simulation)
+### Automated - simulation
 
 The test suite lives in `test/` and requires [cocotb](https://www.cocotb.org/), Icarus Verilog, and the Python packages listed in `test/requirements.txt`. From a virtualenv:
 
@@ -171,7 +164,7 @@ These cover:
 make test-all  # clean build, then runs cocotb and pytest
 ```
 
-### Manual (Hardware)
+### Manual - hardware in the loop
 
 With the design active on a Tiny Tapeout board and the RP2040 bridge firmware running:
 
