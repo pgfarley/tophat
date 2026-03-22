@@ -2,11 +2,11 @@
 
 # TOPHAT: TapeOut Prediction with Hardware Acceleration for Trees
 
-A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree with 8 input features, 7 internal nodes, and 8 leaves. Protocol and usage documentation can be found [here](docs/info.md).
+A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree with 8 input features, 7 internal nodes, and 8 leaves. 
 
-TOPHAT is implemented as a Tiny Tapeout project and is on the Tiny Tapeout IHP 26a shuttle for ASIC tapeout. Tiny Tapeout is an educational project that aims to make it easy and cheap to get digital and analog designs manufactured. Shuttle status is [here](https://app.tinytapeout.com/shuttles/ttihp26a), the project physical chip location is [here](https://app.tinytapeout.com/projects/3648), and more about Tiny Tapeout is at https://tinytapeout.com.
+Protocol and usage documentation can be found [here](docs/info.md).
 
-Click the image to open the GDS viewer.
+Click the image to open the GDS viewer:
 
 <a href="https://blog.patfarley.org/tophat/">
   <img src="docs/assets/gds-pic.png" alt="TOPHAT GDS render in the viewer" width="45%">
@@ -19,6 +19,9 @@ The repository includes:
 - RTL for model load, feature load, and tree traversal; synthesizable for FPGA prototyping and hardenable with LibreLane for ASIC tapeout.
 - Host and board-side tooling for exercising the design on Tiny Tapeout hardware.
 - An end-to-end example showing how a software-trained tree can be quantized, serialized, and run through the inference engine.
+
+TOPHAT is implemented as a Tiny Tapeout project and is on the Tiny Tapeout IHP 26a shuttle for ASIC tapeout. Tiny Tapeout is an educational project that aims to make it easy and cheap to get digital and analog designs manufactured. Shuttle status is [here](https://app.tinytapeout.com/shuttles/ttihp26a), the project physical chip location is [here](https://app.tinytapeout.com/projects/3648), and more about Tiny Tapeout is at https://tinytapeout.com.
+
 
 ## Board example package
 
