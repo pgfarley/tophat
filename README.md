@@ -4,7 +4,7 @@
 
 A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree with 8 input features, 7 internal nodes, and 8 leaves. 
 
-Protocol and usage documentation can be found [here](docs/info.md).
+[Protocol and usage documentation can be found in the datasheet.](docs/info.md)
 
 Click the image to open the GDS viewer:
 
