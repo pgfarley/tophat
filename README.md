@@ -23,17 +23,17 @@ The repository includes:
 TOPHAT is implemented as a Tiny Tapeout project and is on the Tiny Tapeout IHP 26a shuttle for ASIC tapeout. Tiny Tapeout is an educational project that aims to make it easy and cheap to get digital and analog designs manufactured. Shuttle status is [here](https://app.tinytapeout.com/shuttles/ttihp26a), the project physical chip location is [here](https://app.tinytapeout.com/projects/3648), and more about Tiny Tapeout is at https://tinytapeout.com.
 
 
-## Board example package
-
-Deployable MicroPython example code lives in [`examples/`](examples/README.md), structured to match TinyTapeout firmware `src/examples`.
-
-<img src="docs/assets/board-pic.png" alt="TOPHAT running on Tiny Tapeout hardware" width="45%">
-
 ## Latency
 
 TOPHAT evaluates one tree level per clock. With the current depth-3 tree, the core produces a prediction 3 cycles after `run`. Including the input command cycle, the pin-level `CMD_CTRL run` write to `pred_valid` is 4 cycles, or `80 ns` at the `20 ns` (`50 MHz`) clock period used in the LibreLane timing configuration.
 
 <img src="docs/assets/squarewave.png" alt="TOPHAT timing waveform showing run, busy, and pred_valid" width="65%">
+
+## Board example package
+
+Deployable MicroPython example code lives in [`examples/`](examples/README.md), structured to match TinyTapeout firmware `src/examples`.
+
+<img src="docs/assets/board-pic.png" alt="TOPHAT running on Tiny Tapeout hardware" width="45%">
 
 ## Demo
 
