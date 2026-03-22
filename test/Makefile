@@ -6,7 +6,6 @@ SIM ?= icarus
 FST ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG ?= verilog
 SRC_DIR = $(PWD)/../src
-.DEFAULT_GOAL := all
 PROJECT_SOURCES = \
 	tt_um_pgfarley_tophat_top.v \
 	tophat_io_intf.v \
@@ -46,20 +45,25 @@ TOPLEVEL = tb
 # List test modules to run, separated by commas and without the .py suffix.
 # Keep this list space-free: a space after ',' breaks the env-var assignment in Makefile.sim.
 COCOTB_TEST_MODULES = test
+COCOTB_MAKEFILE = $(shell cocotb-config --makefiles 2>/dev/null)/Makefile.sim
 
-.PHONY: test-python test-all
+.PHONY: test-cocotb test-python test-all
 PYTHON ?= ../.venv/bin/python
 PYTEST ?= $(PYTHON) -m pytest
+
+test-cocotb:
+	$(MAKE) sim
 
 test-python:
 	$(PYTEST) -q .
 
 test-all:
 	$(MAKE) clean
-	$(MAKE)
+	$(MAKE) test-cocotb
 	$(MAKE) test-python
 
-ifneq ($(MAKECMDGOALS),test-python)
-# include cocotb's make rules to take care of the simulator setup
-include $(shell cocotb-config --makefiles)/Makefile.sim
+# Let cocotb own the simulator targets. Guard the include so `make test-python`
+# still works even when cocotb isn't installed in the active environment.
+ifneq ($(wildcard $(COCOTB_MAKEFILE)),)
+include $(COCOTB_MAKEFILE)
 endif

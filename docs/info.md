@@ -28,7 +28,6 @@ Child selection is implicit from node index `i` (dense full binary tree):
 
 - left child index: `2*i + 1`
 - right child index: `2*i + 2`
-- leaf byte index: `child_index - 7`
 
 #### Example Model Serialization
 
@@ -50,19 +49,20 @@ Any model can be used as long as it is serialized into the format above. The exa
 ### Feature Representation
 
 TOPHAT feature input is a fixed 8-byte vector with each feature encoded as an unsigned 8-bit value.
+In the Titanic demo, the bytes encode passenger class, sex, age, siblings/spouses aboard, parents/children aboard, fare, port of embarkation, and whether the passenger is traveling alone, in that order.
 
 Example Feature Serialization
 
-| Feature ID | Description | Hex Byte |
+| Feature ID | Passenger Attribute (example value) | Hex Byte |
 | --- | ---  | --- |
-| 0 | budget 10m | 04 |
-| 1 | marketing 5m | 06 |
-| 2 | franchise strength | 0A |
-| 3 | star power | 0C |
-| 4 | critic buzz | 0F |
-| 5 | family friendliness | 14 |
-| 6 | release timing | 0A |
-| 7 | screen count 100 | 12 |
+| 0 | Passenger class (`3rd class`) | FF |
+| 1 | Sex (`male`) | FF |
+| 2 | Age (`22 years`) | 45 |
+| 3 | Siblings/spouses aboard (`1`) | 20 |
+| 4 | Parents/children aboard (`0`) | 00 |
+| 5 | Ticket fare (`7.25`) | 04 |
+| 6 | Port of embarkation (`Southampton`) | 00 |
+| 7 | Traveling alone (`no`) | 00 |
 
 ### Control Protocol
 
@@ -93,7 +93,7 @@ A transfer is accepted on a rising clock edge only when `valid=1` and `ready=1`.
 1. Wait until `ready=1`.
 2. Send 22 bytes with `CMD_MODEL` (`2'b00`), one accepted transfer per byte.
 3. Bytes `0..13` are node records, bytes `14..21` are leaf values. See "Model Representation" above.
-4. `model_loaded` (`uio_out[6]`) asserts after byte 21 is accepted.
+4. `model_loaded` (`uio_out[6]`) asserts after the 22nd byte is accepted.
 
 Notes:
 - `CMD_CTRL` with `clear=1` (`ui_in[1]=1`) resets model, features, status, and core state.
@@ -130,7 +130,77 @@ Lorem ipsum dolor.
 
 ## How to Test
 
-Lorem ipsum dolor.
+### Automated (Simulation)
+
+The test suite lives in `test/` and requires [cocotb](https://www.cocotb.org/), Icarus Verilog, and the Python packages listed in `test/requirements.txt`. From a virtualenv:
+
+```bash
+cd test
+pip install -r requirements.txt
+```
+
+**RTL simulation** (cocotb + Icarus Verilog):
+
+```bash
+make test-cocotb   # builds the sim and runs test/test.py under cocotb
+```
+
+The cocotb test (`test/test.py`) performs a full end-to-end check:
+
+1. Resets the DUT and issues a `CMD_CTRL` clear.
+2. Loads the 22-byte golden model image (`golden_model.bin`) byte-by-byte with `CMD_MODEL` and waits for `model_loaded`.
+3. For each fixture case, loads 8 feature bytes with `CMD_FEATURE`, sends `CMD_CTRL` with `run=1`, and reads the prediction from `uo_out` on the `pred_valid` pulse.
+4. Compares the DUT prediction against both the fixture's expected value and a scikit-learn golden model.
+
+**Python-only tests** (no simulator needed):
+
+```bash
+make test-python   # runs pytest on test_golden_model.py, test_host_client.py, etc.
+```
+
+These cover:
+
+- **Golden-model parity** (`test_golden_model.py`): verifies the scikit-learn decision tree reproduces every fixture case.
+- **Host client** (`test_host_client.py`): validates model/feature payload formatting, length checks, and CLI argument parsing against a fake transport.
+- **Host transport** (`test_host_transport.py`): tests JSON-line serial framing, echo filtering, and timeout behavior with a fake serial port.
+- **Example assets** (`test_example_assets.py`): ensures the published example fixtures and model image match the test golden references.
+
+**Run everything** (simulation + Python tests):
+
+```bash
+make test-all  # clean build, then runs cocotb and pytest
+```
+
+### Manual (Hardware)
+
+With the design active on a Tiny Tapeout board and the RP2040 bridge firmware running:
+
+1. Connect via USB serial (the board enumerates as a CDC device, e.g. `/dev/ttyACM0`).
+2. Use the host CLI (`tools/host/tophat_host.py`) to interact:
+
+```bash
+# Check the bridge is alive
+python tools/host/tophat_host.py ping --port /dev/ttyACM0
+
+# Clear any previous state
+python tools/host/tophat_host.py clear --port /dev/ttyACM0
+
+# Load the 22-byte model image
+python tools/host/tophat_host.py load-model --port /dev/ttyACM0 --model test/golden_model.bin
+
+# Run a prediction with an inline feature vector
+python tools/host/tophat_host.py predict --port /dev/ttyACM0 --features 4,6,10,12,15,20,10,18
+```
+
+The `predict` command loads the 8 feature bytes, triggers inference, and prints the prediction byte returned by the hardware.
+
+You can also supply features from a JSON file:
+
+```bash
+python tools/host/tophat_host.py predict --port /dev/ttyACM0 --features-file features.json
+```
+
+Where `features.json` is either a flat list (`[4,6,10,12,15,20,10,18]`) or an object with keys `feature_00` through `feature_07`.
 
 ## Acknowledgments
 
