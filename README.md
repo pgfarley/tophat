@@ -2,7 +2,7 @@
 
 # TOPHAT: TapeOut Prediction with Hardware Acceleration for Trees
 
-A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree with 8 input features, 7 internal nodes, and 8 leaves. 
+A hardware decision-tree inference engine for small, fixed-shape trees. The current implementation targets a depth-3 tree. 
 
 [Protocol and usage documentation can be found in the datasheet.](docs/info.md)
 
